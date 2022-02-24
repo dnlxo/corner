@@ -35,7 +35,11 @@ class signup(APIView):
             email = serializer.data['email']
             username = serializer.data['username']
             password = make_password(serializer.data['password'])
-            new_user = User(email=email, username=username, password=password)
+            new_user = User(
+                email = email,
+                username = username,
+                password = password
+            )
             new_user.save()
             return Response(request.data, status=status.HTTP_201_CREATED)
 
