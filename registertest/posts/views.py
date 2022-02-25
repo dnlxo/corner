@@ -59,7 +59,7 @@ class post_ru(APIView):
         
             
 
-# /posts/create/
+# /posts
 # 게시글 작성 시 넘겨줄 데이터 : (이미지,이미지,이미지,..., 글)
 class post_create(APIView):
     def post(self, request):

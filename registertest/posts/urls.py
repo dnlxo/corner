@@ -2,11 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # /posts
-    # path('', views.main.as_view()),
-
-    # /posts/create POST요청
-    path('/create', views.post_create.as_view()),
+    # /posts POST요청
+    path('', views.post_create.as_view()),
 
     # /posts/3 GET요청 (3번 게시물 보기)
     path('/<int:post_id>', views.post_ru.as_view()),
