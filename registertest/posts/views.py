@@ -88,7 +88,6 @@ class post_create(APIView):
                 )
                 new_post.save()
                 post = models.Post.objects.latest('id')
-                print(post)
                 for i in before_save:
                     new_postimg = models.PostImage(
                         posts = post,
