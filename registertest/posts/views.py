@@ -35,7 +35,7 @@ class main(APIView):
 '''
 
 # /posts/3
-class post_ru(APIView):
+class post_rud(APIView):
     def get(self, request, post_id):
         posts = models.Post.objects.filter(id = post_id)
         if posts:
@@ -56,7 +56,14 @@ class post_ru(APIView):
                 else:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
-        
+
+    def delete(self, request, post_id):
+        if request.user.is_authenticated:
+            post = get_object_or_404(models.Post, pk=post_id)
+            if request.user == post.author:
+                post.delete()
+                return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)        
             
 
 # /posts
@@ -97,16 +104,6 @@ class post_create(APIView):
                 return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-
-class post_delete(APIView):
-    def delete(self, request, post_id):
-        if request.user.is_authenticated:
-            post = get_object_or_404(models.Post, pk=post_id)
-            if request.user == post.author:
-                post.delete()
-                return Response(status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class comment_cd(APIView):
