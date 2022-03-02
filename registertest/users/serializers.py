@@ -21,3 +21,13 @@ class UserSerializer(serializers.ModelSerializer):
             'password',
             'user_location',
             )
+
+
+class UserValidSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'username',
+            'password',
+            )
