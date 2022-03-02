@@ -10,13 +10,7 @@ class TimeStamedModel(models.Model):
     class Meta:
         abstract = True
 
-'''
-게시글 모델에는 (author(외래키 User), 
-            image,
-            description(글),
-            image_likes(좋아요))
-가 기본적으로 있다.
-'''
+
 class Post(TimeStamedModel):
     author = models.ForeignKey(
                 user_model.User, 
@@ -24,25 +18,20 @@ class Post(TimeStamedModel):
                 on_delete=models.CASCADE, 
                 related_name= 'post_author'
             )
-    # image = models.ImageField(blank=False)
     description = models.TextField(blank=False)
-    image_likes = models.ManyToManyField(
+    latitude = models.TextField(blank=True)
+    longitude = models.TextField(blank=True)
+    road_address = models.TextField(blank=True)
+    district = models.TextField(blank=True)
+    alias = models.TextField(blank=True)
+    likes = models.ManyToManyField(
                     user_model.User,
                     blank=True,
-                    related_name='post_image_likes'
+                    related_name='post_likes'
             )
+    like_count = models.IntegerField(default=0)
 
-    def __str__(self):
-        return f"{self.author}: {self.description}"
 
-'''
-게시글 댓글 모델에는 (
-                author(User 외래키),
-                posts(Post 외래키),
-                contents(댓글 내용)
-                )
-기본적으로 이렇게 3가지가 있다.
-'''
 class Comment(TimeStamedModel):
     author = models.ForeignKey(
             user_model.User, 
@@ -56,10 +45,8 @@ class Comment(TimeStamedModel):
             on_delete=models.CASCADE, 
             related_name= 'comment_post'
         )
-    contents = models.TextField(blank=True)
+    contents = models.TextField(blank=False)
 
-    def __str__(self):
-        return f"{self.author}: {self.contents}"
 
 class PostImage(models.Model):
     posts = models.ForeignKey(
@@ -69,3 +56,19 @@ class PostImage(models.Model):
             related_name= 'image_post'
         )
     image = models.ImageField(blank=False)
+
+
+class ReComment(TimeStamedModel):
+    author = models.ForeignKey(
+            user_model.User, 
+            null=True, 
+            on_delete=models.CASCADE, 
+            related_name= 'recomment_author'
+        )
+    comment = models.ForeignKey(
+            Comment, 
+            null=True, 
+            on_delete=models.CASCADE, 
+            related_name= 'recomment'
+        )
+    contents = models.TextField(blank=False)

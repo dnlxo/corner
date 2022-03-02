@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from users.models import User
-from .models import Post, Comment, PostImage
+from .models import Post, Comment, PostImage, ReComment
 
 class FeedAuthorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,18 +10,6 @@ class FeedAuthorSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "profile_photo",
-        )
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    author = FeedAuthorSerializer()
-
-    class Meta:
-        model = Comment
-        fields = (
-            "id",
-            "contents",
-            "author",
         )
 
 
@@ -39,6 +27,7 @@ class CommentValidSerializer(serializers.ModelSerializer):
             "contents",
         )
 
+
 class PostImageSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
     class Meta:
@@ -48,10 +37,39 @@ class PostImageSerializer(serializers.ModelSerializer):
         )
 
 
+class ReCommentSerializer(serializers.ModelSerializer):
+    author = FeedAuthorSerializer()
+
+    class Meta:
+        model = ReComment
+        fields = (
+            "id",
+            "contents",
+            "author",
+            "create_at",
+        )
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = FeedAuthorSerializer()
+    recomment = ReCommentSerializer(many=True)
+
+    class Meta:
+        model = Comment
+        fields = (
+            "id",
+            "contents",
+            "author",
+            "create_at",
+            "recomment",
+        )
+
+
 class PostSerializer(serializers.ModelSerializer):
     comment_post = CommentSerializer(many=True)
     image_post = PostImageSerializer(many=True, read_only=True)
     author = FeedAuthorSerializer()
+    likes = FeedAuthorSerializer(many=True)
 
     class Meta:
         model = Post
@@ -60,5 +78,16 @@ class PostSerializer(serializers.ModelSerializer):
             "image_post",
             "description",
             "comment_post",
+            "like_count",
+            "likes",
             "author",
+            "latitude",
+			"longitude",
+			"road_address",
+            "district",
+			"alias",
+            "create_at",
+            "updated_at",
         )
+
+

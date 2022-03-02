@@ -8,31 +8,27 @@ from django.shortcuts import get_object_or_404
 
 from users.models import User
 from . import models, serializers
+from django.core.paginator import Paginator
 
-# /posts/
-# 로그인 되어있다면? 홈화면 보여준다. (ex_인스타 메인 피드.. (내가 팔로우하는 사람들 게시물이 뜬다.))
-# 우리는 ?
-'''
-class main(APIView):
+# /posts/home
+class home_view(APIView):
     def get(self, request):
-        if request.user.is_authenticated:
-            comment_form = CommentForm()
+        limit = request.GET.get('limit', None)
+        order = request.GET.get('order', None)
+        page = request.GET.get('page', None)
+        if order == 'new' :
+            posts = models.Post.objects.all().order_by("-create_at")
+        elif order == 'best' :
+            posts = models.Post.objects.all().order_by("-like_count", "-create_at")
+        else :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if limit != None :
+            paginator = Paginator(posts, limit)
+            posts = paginator.get_page(page)
+        serializer = serializers.PostSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-            user = get_object_or_404(user_model, pk=request.user.id)
-            following = user.following.all()
-            posts = models.Post.objects.filter(
-                Q(author__in=following) | Q(author=user)
-            ).order_by("-create_at")
-
-            serializer = serializers.PostSerializer(posts, many=True)
-            print(serializer.data)
-
-            return render(
-                request,
-                'posts/main.html',
-                {"posts": serializer.data, "comment_form": comment_form}
-            )
-'''
+        
 
 # /posts/3
 class post_rud(APIView):
@@ -40,7 +36,7 @@ class post_rud(APIView):
         posts = models.Post.objects.filter(id = post_id)
         if posts:
             serializer = serializers.PostSerializer(posts, many=True)
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else : 
             return Response(request.data, status=status.HTTP_404_NOT_FOUND)
     
@@ -131,4 +127,46 @@ class comment_cd(APIView):
             if request.user == comment.author:
                 comment.delete()
                 return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class recomment_cd(APIView):
+    def post(self, request, comment_id):
+        if request.user.is_authenticated:
+            comment = get_object_or_404(models.Comment, pk=comment_id)
+            serializer = serializers.CommentValidSerializer(data=request.data)
+            if serializer.is_valid():
+                contents = serializer.data['contents']
+                new_recomment = models.ReComment(
+                    author = request.user,
+                    comment = comment,
+                    contents = contents
+                )
+                new_recomment.save()
+                return Response(status=status.HTTP_201_CREATED)
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+    def delete(self, request, recomment_id):
+        if request.user.is_authenticated:
+            recomment = get_object_or_404(models.ReComment, pk=recomment_id)
+            if request.user == recomment.author:
+                recomment.delete()
+                return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class post_like(APIView):
+    def post(self, request, post_id):
+        if request.user.is_authenticated:
+            post = get_object_or_404(models.Post, pk=post_id)
+            if post.likes.filter(pk = request.user.pk).exists() :
+                post.likes.remove(request.user)
+            else:
+                post.likes.add(request.user)
+            post.like_count = post.likes.count()
+            post.save()
+            return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
