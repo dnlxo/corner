@@ -28,7 +28,27 @@ class home_view(APIView):
         serializer = serializers.PostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-        
+
+# /posts/mypages
+class mypages(APIView):
+    def get(self, request):
+        if request.user.is_authenticated:
+            user = get_object_or_404(User, pk=request.user.id)
+            user.post_author.order_by("-create_at")
+            serializer = serializers.MyPageAccountSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class user_pages(APIView):
+    def get(self, request, user_id):
+        if request.user.is_authenticated:
+            user = get_object_or_404(User, pk=user_id)
+            user.post_author.order_by("-create_at")
+            serializer = serializers.MyPageAccountSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
 # /posts/3
 class post_rud(APIView):
@@ -170,3 +190,5 @@ class post_like(APIView):
             post.save()
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+

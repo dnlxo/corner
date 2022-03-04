@@ -91,3 +91,21 @@ class PostSerializer(serializers.ModelSerializer):
         )
 
 
+class MyPageAccountSerializer(serializers.ModelSerializer):
+    followers = FeedAuthorSerializer(many=True)
+    following = FeedAuthorSerializer(many=True)
+    post_author = PostSerializer(many=True)
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "profile_photo",
+            "followers_count",
+            "followers",
+            "following_count",
+            "following",
+            "post_author",
+        )
+

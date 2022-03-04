@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 
 from rest_framework.response import Response
@@ -44,3 +45,26 @@ class signup(APIView):
             return Response(request.data, status=status.HTTP_201_CREATED)
 
         return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
+
+
+class user_follow(APIView):
+    def post(self, request, user_id):
+        if request.user.is_authenticated:
+            logined_user = get_object_or_404(User, pk=request.user.id)
+            user = get_object_or_404(User, pk=user_id)
+            if logined_user != user :
+                if logined_user.following.filter(pk = user.pk).exists() :
+                    logined_user.following.remove(user)
+                    user.followers.remove(logined_user)
+                else:
+                    logined_user.following.add(user)
+                    user.followers.add(logined_user)
+
+                logined_user.following_count = logined_user.following.count()
+                logined_user.save()
+                user.followers_count = user.followers.count()
+                user.save()
+                return Response(status=status.HTTP_200_OK)
+            else :
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
