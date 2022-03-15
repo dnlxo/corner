@@ -12,15 +12,17 @@ class PreferLocationSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     user_location = PreferLocationSerializer(many=True)
-
     class Meta:
         model = User
         fields = (
-            'email',
-            'username',
-            'password',
+            'id',
+            'email', 
+            'username', 
+            'password', 
             'user_location',
-            )
+            'followers',
+            'following'
+        )
 
 
 class UserValidSerializer(serializers.ModelSerializer):
