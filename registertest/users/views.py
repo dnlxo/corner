@@ -1,12 +1,13 @@
 from django.contrib.auth import authenticate, login
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import UserSerializer, UserValidSerializer
-from .models import User
+from .serializers import UserSerializer, UserValidSerializer, PreferLocationSerializer
+from .models import PreferLocation, User
 from django.contrib.auth.hashers import make_password
 
 class main(APIView):
@@ -31,20 +32,45 @@ class main(APIView):
 
 class signup(APIView):
     def post(self, request):
-        serializer = UserValidSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            email = serializer.data['email']
-            username = serializer.data['username']
-            password = make_password(serializer.data['password'])
-            new_user = User(
-                email = email,
-                username = username,
-                password = password
-            )
-            new_user.save()
-            return Response(request.data, status=status.HTTP_201_CREATED)
+            if User.objects.filter(email=request.data['email']).exists():
+                return Response({'message': 'USER_ALREADY_EXISTS'}, status=409)
+            elif User.objects.filter(username=request.data['username']).exists():
+                return Response({'message': 'USER_ALREADY_EXISTS'}, status=409)
+            else :
+                email = serializer.data['email']
+                username = serializer.data['username']
+                password = make_password(serializer.data['password'])
 
-        return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
+            before_save = []
+            locationlist = request.data.getlist('location')
+            q = QueryDict.copy(request.data)
+            for locations in locationlist:
+                q.__setitem__('location', locations)
+                serializer = PreferLocationSerializer(data=q)
+                if serializer.is_valid():
+                    before_save.append(locations)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                new_user = User(
+                    email = email,
+                    username = username,
+                    password = password
+                    )
+            new_user.save()
+            user = User.objects.latest('id')
+            print(user)
+            for i in before_save:
+                new_location = PreferLocation(
+                    user= user,
+                    location = i
+                    )
+                new_location.save()
+            return Response(request.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class user_follow(APIView):

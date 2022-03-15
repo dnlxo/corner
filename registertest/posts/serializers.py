@@ -18,6 +18,10 @@ class PostValidSerializer(serializers.ModelSerializer):
         model = Post
         fields = (
             "description",
+            "latitude",
+			"longitude",
+			"road_address",
+			"alias"
         )
 
 class CommentValidSerializer(serializers.ModelSerializer):

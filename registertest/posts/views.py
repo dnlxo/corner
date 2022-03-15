@@ -91,6 +91,10 @@ class post_create(APIView):
             serializer = serializers.PostValidSerializer(data=request.data)
             if serializer.is_valid():
                 description = serializer.data['description']
+                latitude = serializer.data['latitude']
+                longitude = serializer.data['longitude']
+                road_address = serializer.data['road_address']
+                alias = serializer.data['alias']
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -108,6 +112,10 @@ class post_create(APIView):
                 new_post = models.Post(
                     author = user,
                     description = description,
+                    latitude = latitude,
+					longitude = longitude,
+					road_address = road_address,
+					alias = alias
                 )
                 new_post.save()
                 post = models.Post.objects.latest('id')
@@ -190,5 +198,3 @@ class post_like(APIView):
             post.save()
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-
