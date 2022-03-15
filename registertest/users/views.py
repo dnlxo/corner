@@ -32,7 +32,7 @@ class main(APIView):
 
 class signup(APIView):
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = UserValidSerializer(data=request.data)
         if serializer.is_valid():
             if User.objects.filter(email=request.data['email']).exists():
                 return Response({'message': 'USER_ALREADY_EXISTS'}, status=409)
@@ -64,7 +64,7 @@ class signup(APIView):
             print(user)
             for i in before_save:
                 new_location = PreferLocation(
-                    user= user,
+                    user = user,
                     location = i
                     )
                 new_location.save()
