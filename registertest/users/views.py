@@ -36,13 +36,11 @@ class signup(APIView):
         if serializer.is_valid():
             if User.objects.filter(email=request.data['email']).exists():
                 return Response({'message': 'USER_ALREADY_EXISTS'}, status=409)
-            elif User.objects.filter(username=request.data['username']).exists():
-                return Response({'message': 'USER_ALREADY_EXISTS'}, status=409)
             else :
                 email = serializer.data['email']
                 username = serializer.data['username']
                 password = make_password(serializer.data['password'])
-            print(request.data)
+
             before_save = []
             locationlist = request.data.getlist('location')
             q = QueryDict.copy(request.data)
@@ -64,7 +62,7 @@ class signup(APIView):
             print(user)
             for i in before_save:
                 new_location = PreferLocation(
-                    user = user,
+                    user= user,
                     location = i
                     )
                 new_location.save()
