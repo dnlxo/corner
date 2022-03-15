@@ -42,7 +42,7 @@ class signup(APIView):
                 email = serializer.data['email']
                 username = serializer.data['username']
                 password = make_password(serializer.data['password'])
-
+            print(request.data)
             before_save = []
             locationlist = request.data.getlist('location')
             q = QueryDict.copy(request.data)
