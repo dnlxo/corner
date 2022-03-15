@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from users.models import User
+from users.serializers import PreferLocationSerializer
 from .models import Post, Comment, PostImage, ReComment
 
 class FeedAuthorSerializer(serializers.ModelSerializer):
@@ -99,12 +100,14 @@ class MyPageAccountSerializer(serializers.ModelSerializer):
     followers = FeedAuthorSerializer(many=True)
     following = FeedAuthorSerializer(many=True)
     post_author = PostSerializer(many=True)
+    user_location = PreferLocationSerializer(many=True)
 
     class Meta:
         model = User
         fields = (
             "id",
             "username",
+            "user_location",
             "profile_photo",
             "followers_count",
             "followers",
