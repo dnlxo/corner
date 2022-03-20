@@ -38,7 +38,7 @@ class mypages(APIView):
             serializer = serializers.MyPageAccountSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
-
+       
 
 class user_pages(APIView):
     def get(self, request, user_id):
@@ -125,7 +125,9 @@ class post_create(APIView):
                         image = i,
                     )
                     new_postimg.save()
-                return Response(status=status.HTTP_201_CREATED)
+                serializer = serializers.PostSerializer(post)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                #return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
@@ -143,7 +145,9 @@ class comment_cd(APIView):
                     contents = contents
                 )
                 new_comment.save()
-                return Response(status=status.HTTP_201_CREATED)
+                #return Response(status=status.HTTP_201_CREATED)
+                serializer = serializers.PostSerializer(post)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -154,12 +158,12 @@ class comment_cd(APIView):
             comment = get_object_or_404(models.Comment, pk=comment_id)
             if request.user == comment.author:
                 comment.delete()
-                return Response(status=status.HTTP_200_OK)
+                return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class recomment_cd(APIView):
-    def post(self, request, comment_id):
+    def post(self, request, post_id, comment_id):
         if request.user.is_authenticated:
             comment = get_object_or_404(models.Comment, pk=comment_id)
             serializer = serializers.CommentValidSerializer(data=request.data)
@@ -171,7 +175,10 @@ class recomment_cd(APIView):
                     contents = contents
                 )
                 new_recomment.save()
-                return Response(status=status.HTTP_201_CREATED)
+                post = get_object_or_404(models.Post, pk=post_id)
+                serializer = serializers.PostSerializer(post)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                #return Response(status=status.HTTP_201_CREATED)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -182,7 +189,7 @@ class recomment_cd(APIView):
             recomment = get_object_or_404(models.ReComment, pk=recomment_id)
             if request.user == recomment.author:
                 recomment.delete()
-                return Response(status=status.HTTP_200_OK)
+                return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -196,5 +203,7 @@ class post_like(APIView):
                 post.likes.add(request.user)
             post.like_count = post.likes.count()
             post.save()
-            return Response(status=status.HTTP_200_OK)
+            #return Response(status=status.HTTP_200_OK)
+            serializer = serializers.PostSerializer(post)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_401_UNAUTHORIZED)

@@ -24,7 +24,8 @@ class main(APIView):
 
         if user is not None:
             login(request, user)
-            return Response(request.data, status=status.HTTP_200_OK)
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         else:
             return Response(request.data, status=status.HTTP_403_FORBIDDEN)
