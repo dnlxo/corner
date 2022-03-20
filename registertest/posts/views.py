@@ -25,7 +25,7 @@ class home_view(APIView):       #new/best_view
         if limit != None :
             paginator = Paginator(posts, limit)
             posts = paginator.get_page(page)
-        serializer = serializers.PostSerializer(posts, many=True)
+            serializer = serializers.PostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 '''
 class home_view2(APIView):      #prefer_location_view
