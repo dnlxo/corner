@@ -11,7 +11,7 @@ from . import models, serializers
 from django.core.paginator import Paginator
 
 # /posts/home
-class home_view(APIView):
+class home_view(APIView):       #new/best_view
     def get(self, request):
         limit = request.GET.get('limit', None)
         order = request.GET.get('order', None)
@@ -27,7 +27,37 @@ class home_view(APIView):
             posts = paginator.get_page(page)
         serializer = serializers.PostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+'''
+class home_view2(APIView):      #prefer_location_view
+     def get(self, request):
+        limit = request.GET.get('limit', None)
+        order = request.GET.get('order', None)
+        page = request.GET.get('page', None)
+        if limit != None :
+            paginator = Paginator(posts, limit)
+            posts = paginator.get_page(page)
+        serializer = serializers.PostSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+'''
 
+class personal_View(APIView):       #following/likes_view
+	def get(self, request):
+		limit = request.GET.get('limit', None)
+		order = request.GET.get('order', None)
+		page = request.GET.get('page', None)
+		if order == 'following' :
+			following = user.following.all()
+			posts = models.Post.objects.filter(author__in = following).order_by("-create_at")
+		#elif order == 'likes' :
+		#	likes = user.like_post.all()
+		#	posts = likes.order_by("-create_at")
+		else :
+			return Response(status=status.HTTP_400_BAD_REQUEST)
+		if limit != None :
+			paginator = Paginator(posts, limit)
+			posts = paginator.get_page(page)
+			serializer = serializers.PostSerializer(posts, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
 
 # /posts/mypages
 class mypages(APIView):
@@ -145,9 +175,9 @@ class comment_cd(APIView):
                     contents = contents
                 )
                 new_comment.save()
-                #return Response(status=status.HTTP_201_CREATED)
-                serializer = serializers.PostSerializer(post)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_201_CREATED)
+                #serializer = serializers.PostSerializer(post)
+                #return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -175,10 +205,10 @@ class recomment_cd(APIView):
                     contents = contents
                 )
                 new_recomment.save()
-                post = get_object_or_404(models.Post, pk=post_id)
-                serializer = serializers.PostSerializer(post)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-                #return Response(status=status.HTTP_201_CREATED)
+                #post = get_object_or_404(models.Post, pk=post_id)
+                #serializer = serializers.PostSerializer(post)
+                #return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_201_CREATED)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -203,7 +233,7 @@ class post_like(APIView):
                 post.likes.add(request.user)
             post.like_count = post.likes.count()
             post.save()
-            #return Response(status=status.HTTP_200_OK)
-            serializer = serializers.PostSerializer(post)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_200_OK)
+            #serializer = serializers.PostSerializer(post)
+            #return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
