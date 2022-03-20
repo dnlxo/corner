@@ -40,7 +40,7 @@ class home_view2(APIView):      #prefer_location_view
         return Response(serializer.data, status=status.HTTP_200_OK)
 '''
 
-class personal_View(APIView):       #following/likes_view
+class personal_view(APIView):       #following/likes_view
 	def get(self, request):
 		limit = request.GET.get('limit', None)
 		order = request.GET.get('order', None)
