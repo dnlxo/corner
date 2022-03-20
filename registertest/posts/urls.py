@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+app_name = 'posts'
 urlpatterns = [
 
     # /api/posts/home 홈피드 보여주기 (order=&limit=&page=)
