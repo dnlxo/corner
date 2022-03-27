@@ -82,7 +82,7 @@ MEDIA_URL = 'http://ec2-3-39-1-173.ap-northeast-2.compute.amazonaws.com:8000/med
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
