@@ -81,19 +81,19 @@ WSGI_APPLICATION = 'registertest.wsgi.application'
 MEDIA_URL = 'http://ec2-3-39-1-173.ap-northeast-2.compute.amazonaws.com:8000/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-'''
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'test',
         'HOST': 'localhost',
         'PORT': '5432',
         'USER': 'postgres',
-        'PASSWORD': 'dkdlvjs24'
+        'PASSWORD': 'codbsdl2!'
     }
 }
 '''
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -104,7 +104,7 @@ DATABASES = {
         'PASSWORD': 'corner42'
     }
 }
-
+'''
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

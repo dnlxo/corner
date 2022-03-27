@@ -10,7 +10,7 @@ class User(AbstractUser):
     followers_count = models.IntegerField(default=0, blank=True)
     following = models.ManyToManyField("self", symmetrical=False, blank=True, related_name='user_following')
     following_count = models.IntegerField(default=0, blank=True)
-
+    like_post = models.ManyToManyField("posts.models.Post", blank=True, related_name='like_users')
 
 class PreferLocation(models.Model):
     user = models.ForeignKey(

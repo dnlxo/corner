@@ -116,3 +116,11 @@ class MyPageAccountSerializer(serializers.ModelSerializer):
             "post_author",
         )
 
+class LikeListSerializer(serializers.ModelSerializer):
+	likes = FeedAuthorSerializer(many=True)
+
+	class Meta:
+		model = Post
+		fields = (
+			"likes",
+		)
