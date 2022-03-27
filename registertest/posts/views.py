@@ -49,12 +49,12 @@ class personal_view(APIView):       #following/likes_view
         if order == 'following' :
             following = user.following.all()
             posts = models.Post.objects.filter(author__in = following).order_by("-create_at")
-        elif order == 'likes' :
+        '''elif order == 'likes' :
             likes = user.like_post.all()
 			#posts = likes.order_by("-create_at")
-            posts = models.Post.objects.filter(author__in = like_post).order_by("-create_at")
-        else :
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            posts = models.Post.objects.filter(author__in = like_post).order_by("-create_at")'''
+        #else :
+        #    return Response(status=status.HTTP_400_BAD_REQUEST)
         if limit != None :
             paginator = Paginator(posts, limit)
             posts = paginator.get_page(page)
