@@ -49,12 +49,12 @@ class personal_view(APIView):       #following/likes_view
         if order == 'following' :
             following = user.following.all()
             posts = models.Post.objects.filter(author__in = following).order_by("-create_at")
-        '''elif order == 'likes' :
-            likes = user.like_post.all()
+        #elif order == 'likes' :
+            #likes = user.like_post.all()
 			#posts = likes.order_by("-create_at")
-            posts = models.Post.objects.filter(author__in = like_post).order_by("-create_at")'''
-        #else :
-        #    return Response(status=status.HTTP_400_BAD_REQUEST)
+            #posts = models.Post.objects.filter(author__in = like_post).order_by("-create_at")'''
+        else :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         if limit != None :
             paginator = Paginator(posts, limit)
             posts = paginator.get_page(page)
@@ -247,10 +247,9 @@ class post_like(APIView):
             serializer = serializers.PostSerializer(post)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
-'''
+
     def get(self, request, post_id):
         post = get_object_or_404(models.Post, pk=post_id)
-        likes = post.likes.all()
-        serializer = serializers.LikeListSerializer(likes, many=True)
+        queryset = post.likes.all()
+        serializer = serializers.LikeListSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-'''

@@ -97,7 +97,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'corner_db',
+        'NAME': 'postgres',
         'HOST': 'database-1.cas9y2yusgum.ap-northeast-2.rds.amazonaws.com',
         'PORT': '5432',
         'USER': 'corner',
