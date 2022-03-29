@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+#from posts import models as post_model
 
 # Create your models here.
 class User(AbstractUser):
@@ -10,8 +11,11 @@ class User(AbstractUser):
     followers_count = models.IntegerField(default=0, blank=True)
     following = models.ManyToManyField("self", symmetrical=False, blank=True, related_name='user_following')
     following_count = models.IntegerField(default=0, blank=True)
-    #like_post = models.ManyToManyField("posts.models.Post", blank=True)#, related_name='like_users')
-
+    #like_post = models.ForeignKey(
+     #               post_model.Post, 
+      #              blank=True
+       #             ) #related_name='post_likes')
+    #post_likes = models.ManyToManyField("posts.models.Post", blank=True, related_name='likes')
 class PreferLocation(models.Model):
     user = models.ForeignKey(
             User, 

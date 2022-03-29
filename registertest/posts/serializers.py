@@ -80,12 +80,9 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = (
             "id",
+            "author",
             "image_post",
             "description",
-            "comment_post",
-            "like_count",
-            "likes",
-            "author",
             "latitude",
 			"longitude",
 			"road_address",
@@ -93,6 +90,9 @@ class PostSerializer(serializers.ModelSerializer):
 			"alias",
             "create_at",
             "updated_at",
+            "comment_post",
+            "like_count",
+            "likes",
         )
 
 
@@ -122,5 +122,6 @@ class LikeListSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Post
 		fields = (
-			"likes",
+            "like_count",
+			"likes"
 		)

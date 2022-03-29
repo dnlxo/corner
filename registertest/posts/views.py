@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from users.models import User
+from users.models import User, PreferLocation
 from . import models, serializers
 from django.core.paginator import Paginator
 
@@ -31,15 +31,20 @@ class home_view(APIView):       #new/best_view
 class home_view2(APIView):      #prefer_location_view
      def get(self, request):
         limit = request.GET.get('limit', None)
-        order = request.GET.get('order', None)
+        #order = request.GET.get('order', None)
         page = request.GET.get('page', None)
+        user = get_object_or_404(User, pk=request.user.id)
+        locaton = user.user_location
+        #user.user_location.all()
+        posts = models.Post.objects.filter(location=models.Post.district)
+        #if user.user_location == district
+        #posts = models.Post.objects.filter(district__in = prefer_location).order_by("-create_at")
         if limit != None :
             paginator = Paginator(posts, limit)
             posts = paginator.get_page(page)
         serializer = serializers.PostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 '''
-
 class personal_view(APIView):       #following/likes_view
     def get(self, request):
         limit = request.GET.get('limit', None)
@@ -49,10 +54,9 @@ class personal_view(APIView):       #following/likes_view
         if order == 'following' :
             following = user.following.all()
             posts = models.Post.objects.filter(author__in = following).order_by("-create_at")
-        #elif order == 'likes' :
-            #likes = user.like_post.all()
-			#posts = likes.order_by("-create_at")
-            #posts = models.Post.objects.filter(author__in = like_post).order_by("-create_at")'''
+        elif order == 'likes' :
+            likes = user.post_likes.all()
+            posts = likes.order_by("-create_at")
         else :
             return Response(status=status.HTTP_400_BAD_REQUEST)
         if limit != None :
@@ -179,7 +183,6 @@ class comment_cd(APIView):
                     contents = contents
                 )
                 new_comment.save()
-                #return Response(status=status.HTTP_201_CREATED)
                 serializer = serializers.PostSerializer(post)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
@@ -187,20 +190,18 @@ class comment_cd(APIView):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
     
-    def delete(self, request, comment_id):
-        if request.user.is_authenticated:
+    def delete(self, request, post_id, comment_id):
+        if request.user.is_authenticated:            
             comment = get_object_or_404(models.Comment, pk=comment_id)
-            #comment = self.get_object(comment_id)
-            #post = get_object_or_404(models.Post, post_id=post_id)
+            post = get_object_or_404(models.Post, pk=post_id)
             if request.user == comment.author:
                 comment.delete()
-                #serializer = serializers.PostSerializer(post)
-                #return Response(serializer.data, status=status.HTTP_200_OK)
-                return Response(status=status.HTTP_204_NO_CONTENT)
+                serializer = serializers.PostSerializer(post)
+                return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class recomment_cd(APIView):
-    def post(self, request, comment_id):
+    def post(self, request, post_id, comment_id):
         if request.user.is_authenticated:
             comment = get_object_or_404(models.Comment, pk=comment_id)
             serializer = serializers.CommentValidSerializer(data=request.data)
@@ -212,24 +213,22 @@ class recomment_cd(APIView):
                     contents = contents
                 )
                 new_recomment.save()
-                #post = get_object_or_404(models.Post, pk=post_id)
-                #serializer = serializers.PostSerializer(post)
-                #return Response(serializer.data, status=status.HTTP_201_CREATED)
-                return Response(status=status.HTTP_201_CREATED)
+                post = get_object_or_404(models.Post, pk=post_id)
+                serializer = serializers.PostSerializer(post)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
     
-    def delete(self, request, recomment_id):
+    def delete(self, request, post_id, recomment_id):
         if request.user.is_authenticated:
             recomment = get_object_or_404(models.ReComment, pk=recomment_id)
-            #post = get_object_or_404(models.Post, pk=post_id)
+            post = get_object_or_404(models.Post, pk=post_id)
             if request.user == recomment.author:
                 recomment.delete()
-                #serializer = serializers.PostSerializer(post)
-                #return Response(serializer.data, status=status.HTTP_200_OK)
-                return Response(status=status.HTTP_204_NO_CONTENT)
+                serializer = serializers.PostSerializer(post)
+                return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -237,7 +236,7 @@ class post_like(APIView):
     def post(self, request, post_id):
         if request.user.is_authenticated:
             post = get_object_or_404(models.Post, pk=post_id)
-            if post.likes.filter(pk = request.user.pk).exists() :
+            if post.likes.filter(pk = request.user.pk).exists():
                 post.likes.remove(request.user)
             else:
                 post.likes.add(request.user)
@@ -249,7 +248,9 @@ class post_like(APIView):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def get(self, request, post_id):
-        post = get_object_or_404(models.Post, pk=post_id)
-        queryset = post.likes.all()
-        serializer = serializers.LikeListSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        posts = models.Post.objects.filter(id = post_id)
+        if posts:
+            serializer = serializers.LikeListSerializer(posts, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else : 
+            return Response(status=status.HTTP_404_NOT_FOUND)

@@ -30,7 +30,6 @@ class main(APIView):
         else:
             return Response(request.data, status=status.HTTP_403_FORBIDDEN)
 
-
 class signup(APIView):
     def post(self, request):
         serializer = UserValidSerializer(data=request.data)
