@@ -45,6 +45,32 @@ class home_view2(APIView):      #prefer_location_view
         serializer = serializers.PostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 '''
+
+class home_view2(APIView):      #prefer_location_view
+     def get(self, request):
+        user = get_object_or_404(User, pk=request.user.id)
+        location = user.user_location.values('location')
+        location = list(location)
+        print(location)
+        temp = []
+        for i in location :
+            temp.append(i['location'])
+        print(temp)
+        limit = request.GET.get('limit', None)
+        order = request.GET.get('order', None)
+        page = request.GET.get('page', None)
+        if order == 'new' :
+            posts = models.Post.objects.filter(district__in = temp).order_by("-create_at")
+        elif order == 'best' :
+            posts = models.Post.objects.filter(district__in = temp).order_by("-like_count", "-create_at")
+        else :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if limit != None :
+            paginator = Paginator(posts, limit)
+            posts = paginator.get_page(page)
+        serializer = serializers.PostSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class personal_view(APIView):       #following/likes_view
     def get(self, request):
         limit = request.GET.get('limit', None)
@@ -132,6 +158,7 @@ class post_create(APIView):
                 latitude = serializer.data['latitude']
                 longitude = serializer.data['longitude']
                 road_address = serializer.data['road_address']
+                district = serializer.data['district']
                 alias = serializer.data['alias']
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -153,6 +180,7 @@ class post_create(APIView):
                     latitude = latitude,
 					longitude = longitude,
 					road_address = road_address,
+                    district = district,
 					alias = alias
                 )
                 new_post.save()

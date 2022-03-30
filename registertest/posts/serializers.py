@@ -22,6 +22,7 @@ class PostValidSerializer(serializers.ModelSerializer):
             "latitude",
 			"longitude",
 			"road_address",
+            "district",
 			"alias"
         )
 

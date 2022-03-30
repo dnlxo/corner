@@ -6,7 +6,7 @@ urlpatterns = [
 
     # /api/posts/home 홈피드 보여주기 (order=&limit=&page=)
     path('/home', views.home_view.as_view()),
-    #path('/home2', views.home_view2.as_view()),
+    path('/home2', views.home_view2.as_view()),
     path('/likes_view', views.personal_view.as_view()),
 
 
