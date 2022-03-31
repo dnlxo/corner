@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 from users.models import User, PreferLocation
 from . import models, serializers
@@ -89,6 +90,13 @@ class personal_view(APIView):       #following/likes_view
             paginator = Paginator(posts, limit)
             posts = paginator.get_page(page)
             serializer = serializers.PostSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class search_view(APIView):
+    def post(self, request):
+        search_word = request.data['search_word']
+        posts = models.Post.objects.filter(Q(description__icontains=search_word) | Q(district__icontains=search_word) | Q(road_address__icontains=search_word)).distinct()
+        serializer = serializers.PostSerializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # /posts/mypages

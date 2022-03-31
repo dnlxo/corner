@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, login
 from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
+from django.db.models import Q
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -93,3 +94,11 @@ class user_follow(APIView):
             else :
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class search_user(APIView):
+    def post(self, request):
+        search_user = request.data['search_user']
+        users = User.objects.filter(Q(email__icontains=search_user) | Q(username__icontains=search_user)).distinct()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

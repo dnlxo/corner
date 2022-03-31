@@ -13,4 +13,6 @@ urlpatterns = [
     path('users/<int:user_id>', user_pages.as_view()),
     # /api/mypages       GET방식 마이페이지로 이동
     path('mypages', mypages.as_view()),
+    path('users/search', views.search_user.as_view()),
+
 ]

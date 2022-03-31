@@ -9,7 +9,7 @@ urlpatterns = [
     path('/home2', views.home_view2.as_view()),
     path('/likes_view', views.personal_view.as_view()),
 
-
+    path('/search', views.search_view.as_view()),
 
     # /api/posts POST요청
     path('', views.post_create.as_view()),
