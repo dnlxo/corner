@@ -14,5 +14,8 @@ urlpatterns = [
     # /api/mypages       GET방식 마이페이지로 이동
     path('mypages', mypages.as_view()),
     path('users/search', views.search_user.as_view()),
+    path('<int:user_id>/username_edit', views.username_edit.as_view()),
+    path('<int:user_id>/preferlocation_edit', views.preferlocation_edit.as_view()),
+    path('withdrawal', views.withdrawal.as_view())
 
 ]

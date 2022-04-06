@@ -24,6 +24,13 @@ class UserSerializer(serializers.ModelSerializer):
             'following'
         )
 
+class UsernameEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'username', 
+        )
+
 
 class UserValidSerializer(serializers.ModelSerializer):
     class Meta:

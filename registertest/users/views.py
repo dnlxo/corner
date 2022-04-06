@@ -1,13 +1,14 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from django.db.models import Q
 
+
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import UserSerializer, UserValidSerializer, PreferLocationSerializer
+from .serializers import UserSerializer, UserValidSerializer, PreferLocationSerializer, UsernameEditSerializer
 from .models import PreferLocation, User
 from django.contrib.auth.hashers import make_password
 
@@ -102,3 +103,57 @@ class search_user(APIView):
         users = User.objects.filter(Q(email__icontains=search_user) | Q(username__icontains=search_user)).distinct()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class username_edit(APIView):
+    def put(self, request, user_id):
+        if request.user.is_authenticated:
+            user = get_object_or_404(User, pk=user_id)
+            serializer = UsernameEditSerializer(data=request.data)
+            if serializer.is_valid():
+                if User.objects.filter(username=request.data['username']).exists():
+                    return Response({'message': 'USERNAME_ALREADY_EXISTS'}, status=409)
+                else:
+                    user.username = serializer.data['username']
+                    #user.password = make_password(serializer.data['password'])
+                    #photo
+                    user.save()
+                    serializer = UserSerializer(user)
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class preferlocation_edit(APIView):
+    def put(self, request, user_id):
+        if request.user.is_authenticated:
+            user = get_object_or_404(User, pk=user_id)
+            before_save = []
+            locationlist = request.data.getlist('location')
+            q = QueryDict.copy(request.data)
+            for locations in locationlist:
+                q.__setitem__('location', locations)
+                serializer = PreferLocationSerializer(data=q)
+                if serializer.is_valid():
+                    before_save.append(locations)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            user.user_location.all().delete()
+            for i in before_save:
+                edited_location = PreferLocation(
+                    user = user,
+                    location = i
+                    )
+                edited_location.save()
+                serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class withdrawal(APIView):
+    def delete(self, request):
+        if request.user.is_authenticated:
+            request.user.delete()
+            logout(request)
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
